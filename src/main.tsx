@@ -12,6 +12,8 @@ import {
 } from "react-router";
 import Swagger from "./Swagger.tsx";
 import Tanstack from "./Tanstack.tsx";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 
 const RootLayout = () => {
   return (
@@ -42,8 +44,20 @@ const router = createBrowserRouter(
   )
 );
 
+const client = new QueryClient({
+  defaultOptions: {
+    queries: {
+      retry: 2,
+      staleTime: Infinity,
+    },
+  },
+});
+
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
-    <RouterProvider router={router} />
+    <QueryClientProvider client={client}>
+      <RouterProvider router={router} />
+    </QueryClientProvider>
+    <ReactQueryDevtools client={client} />
   </StrictMode>
 );

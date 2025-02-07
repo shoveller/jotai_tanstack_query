@@ -8,7 +8,7 @@ const sdk = new Api({
 });
 
 sdk.instance.interceptors.response.use((res) => {
-  console.log("인터셉트!");
+  // throw new Error("200이지만 사실은 에러임");
   return res;
 });
 
@@ -17,10 +17,9 @@ sdk.instance.interceptors.response.use((res) => {
 // });
 
 function App() {
-  const [data, setData] = useState<PaginatedPokemonSummaryList>([]);
   const [page, setPage] = useState(0);
-  useQuery({
-    queryKey: ["pokemonlist"],
+  const { data, isLoading, isError, error } = useQuery({
+    queryKey: ["pokemonlist", page],
     queryFn: () =>
       sdk.api.pokemonList({
         limit: 10,
@@ -28,21 +27,13 @@ function App() {
       }),
   });
 
-  useEffect(() => {
-    const offset = page * 10;
-    sdk.api
-      .pokemonList({
-        limit: 10,
-        offset,
-      })
-      .then((res) => {
-        setData(res.data);
-      });
+  if (isLoading) {
+    return <h1>로딩중</h1>;
+  }
 
-    // instance.get(`/pokemon?limit=10&offset=${offset}`).then((res) => {
-    //   setData(res.data);
-    // });
-  }, [page]);
+  if (isError) {
+    return <h1>{error.message}</h1>;
+  }
 
   return (
     <>
